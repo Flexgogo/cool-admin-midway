@@ -181,6 +181,80 @@ export class DemoAppGoodsController extends BaseController {
 - `POST /app/demo/goods/list` 列表信息
 - `POST /app/demo/goods/page` 分页查询(包含模糊查询、字段全匹配等)
 
+## 图片日期模块
+
+项目中包含了一个图片日期管理模块，用于管理按日期组织的图片信息。
+
+### 功能特性
+
+- **日期管理**：支持按日期组织图片信息
+- **状态控制**：支持启用/禁用状态管理
+- **图片存储**：支持图片文件的存储和管理
+- **备注信息**：支持为每个日期添加备注说明
+
+### 模块结构
+
+```
+src/modules/picture/
+├── controller/admin/date.ts    # 管理端控制器
+├── entity/date.ts              # 图片日期实体
+├── service/date.ts             # 图片日期服务
+└── config.ts                   # 模块配置
+```
+
+### API 接口
+
+图片日期模块提供以下 API 接口：
+
+- `POST /admin/picture/date/add` - 新增图片日期
+- `POST /admin/picture/date/delete` - 删除图片日期
+- `POST /admin/picture/date/update` - 更新图片日期
+- `GET /admin/picture/date/info` - 获取单个图片日期信息
+- `POST /admin/picture/date/list` - 获取图片日期列表
+- `POST /admin/picture/date/page` - 分页查询图片日期
+
+### 数据结构
+
+```typescript
+{
+  id: number;           // 主键ID
+  date: Date;          // 日期
+  picture: string;     // 图片路径
+  status: number;      // 状态 (0:禁用, 1:启用)
+  remark: string;      // 备注
+  createTime: Date;    // 创建时间
+  updateTime: Date;    // 更新时间
+}
+```
+
+### 服务方法
+
+`PictureDateService` 提供了以下扩展方法：
+
+- `findByDate(date)` - 根据日期查询图片信息
+- `findByStatus(status)` - 获取指定状态的图片日期列表
+- `findByDateRange(startDate, endDate)` - 获取日期范围内的图片信息
+
+### 使用示例
+
+```typescript
+// 注入服务
+@Inject()
+pictureDateService: PictureDateService;
+
+// 根据日期查询
+const pictureInfo = await this.pictureDateService.findByDate('2024-01-01');
+
+// 获取启用状态的图片列表
+const enabledPictures = await this.pictureDateService.findByStatus(1);
+
+// 查询日期范围内的图片
+const pictures = await this.pictureDateService.findByDateRange(
+  new Date('2024-01-01'),
+  new Date('2024-01-31')
+);
+```
+
 ### 部署
 
 [部署教程](https://node.cool-admin.com/src/guide/deploy.html)
