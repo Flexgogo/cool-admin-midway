@@ -191,12 +191,15 @@ export class DemoAppGoodsController extends BaseController {
 - **状态控制**：支持启用/禁用状态管理
 - **图片存储**：支持图片文件的存储和管理
 - **备注信息**：支持为每个日期添加备注说明
+- **APP端接口**：提供无需登录的公开接口，方便移动端获取图片数据
 
 ### 模块结构
 
 ```
 src/modules/picture/
-├── controller/admin/date.ts    # 管理端控制器
+├── controller/
+│   ├── admin/date.ts           # 管理端控制器
+│   └── app/date.ts             # APP端控制器
 ├── entity/date.ts              # 图片日期实体
 ├── service/date.ts             # 图片日期服务
 └── config.ts                   # 模块配置
@@ -204,7 +207,7 @@ src/modules/picture/
 
 ### API 接口
 
-图片日期模块提供以下 API 接口：
+#### 管理端接口（需要管理员权限）
 
 - `POST /admin/picture/date/add` - 新增图片日期
 - `POST /admin/picture/date/delete` - 删除图片日期
@@ -212,6 +215,10 @@ src/modules/picture/
 - `GET /admin/picture/date/info` - 获取单个图片日期信息
 - `POST /admin/picture/date/list` - 获取图片日期列表
 - `POST /admin/picture/date/page` - 分页查询图片日期
+
+#### APP端接口（公开访问，无需登录）
+
+- `GET /app/picture/date/picturesByDateRange?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` - 根据起止时间获取图片列表
 
 ### 数据结构
 
@@ -237,6 +244,7 @@ src/modules/picture/
 
 ### 使用示例
 
+#### 服务层调用
 ```typescript
 // 注入服务
 @Inject()
@@ -255,6 +263,36 @@ const pictures = await this.pictureDateService.findByDateRange(
 );
 ```
 
+#### APP端接口调用
+```bash
+# 获取指定日期范围内的图片列表（无需登录）
+curl -X GET "http://localhost:8001/app/picture/date/picturesByDateRange?startDate=2024-01-01&endDate=2024-01-31"
+```
+
+**返回数据格式：**
+```json
+{
+  "code": 1000,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "date": "2024-01-15",
+      "picture": "/uploads/2024/01/15/image.jpg",
+      "remark": "示例图片",
+      "createTime": "2024-01-15T10:00:00.000Z",
+      "updateTime": "2024-01-15T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+**参数说明：**
+- `startDate`: 开始日期，格式：YYYY-MM-DD
+- `endDate`: 结束日期，格式：YYYY-MM-DD
+- 接口会自动过滤掉状态为禁用的图片
+- 支持日期格式验证和范围验证
+
 ### 部署
 
 [部署教程](https://node.cool-admin.com/src/guide/deploy.html)
@@ -268,3 +306,158 @@ const pictures = await this.pictureDateService.findByDateRange(
 ### 低价服务器
 
 [阿里云、腾讯云、华为云低价云服务器，不限新老](https://cool-js.com/service/cloud)
+
+## 商城模块
+
+项目中包含了一个完整的商城管理模块，提供商品分类和商品管理功能。
+
+### 功能特性
+
+- **商品分类管理**：支持分类的增删改查，状态控制，排序管理
+- **公开API接口**：分类列表和详情接口无需登录即可访问
+- **权限控制**：管理端接口需要管理员权限，APP端部分接口公开访问
+- **状态管理**：支持分类的上架/下架状态控制
+- **图片支持**：支持分类图片的存储和展示
+
+### 模块结构
+
+```
+src/modules/shop/
+├── controller/
+│   ├── admin/
+│   │   ├── category.ts         # 管理端分类控制器
+│   │   └── goods.ts           # 管理端商品控制器
+│   └── app/
+│       └── category.ts        # APP端分类控制器
+├── entity/
+│   ├── category.ts            # 分类实体
+│   └── goods.ts              # 商品实体
+├── service/
+│   └── category.ts           # 分类服务
+└── config.ts                 # 模块配置
+```
+
+### API接口
+
+#### APP端接口（公开访问）
+
+- `GET /app/shop/category/list` - 获取分类列表（无需登录）
+- `GET /app/shop/category/categoryInfo?id={id}` - 获取分类详情（无需登录）
+- `GET /app/shop/category/goodsList?categoryId={id}` - 根据分类获取商品列表（无需登录）
+
+#### 管理端接口（需要管理员权限）
+
+- `POST /admin/shop/category/add` - 新增分类
+- `POST /admin/shop/category/delete` - 删除分类
+- `POST /admin/shop/category/update` - 更新分类
+- `GET /admin/shop/category/info` - 获取分类详情
+- `POST /admin/shop/category/list` - 获取分类列表
+- `POST /admin/shop/category/page` - 分页查询分类
+
+### 使用示例
+
+#### 获取分类列表
+```bash
+curl -X GET "http://localhost:9000/dev/app/shop/category/list"
+```
+
+#### 获取分类详情
+```bash
+curl -X GET "http://localhost:9000/dev/app/shop/category/categoryInfo?id=1"
+```
+
+#### 根据分类获取商品列表
+```bash
+curl -X GET "http://localhost:9000/dev/app/shop/category/goodsList?categoryId=1"
+```
+
+### 数据结构
+
+#### 分类实体字段
+
+- `id`: 主键ID
+- `pic`: 分类图片
+- `name`: 分类名称（唯一）
+- `description`: 分类描述
+- `status`: 状态（0-下架，1-上架）
+- `orderNum`: 排序号
+- `createTime`: 创建时间
+- `updateTime`: 更新时间
+
+### 权限说明
+
+根据cool-admin的权限管理机制：
+
+- **APP端接口**：`/app/**` 路径的接口默认需要用户登录验证
+- **公开接口**：使用 `@CoolTag(TagTypes.IGNORE_TOKEN)` 标签的接口无需登录
+- **管理端接口**：`/admin/**` 路径的接口需要管理员权限验证
+
+本次修改将所有商城分类相关的APP端接口（分类列表、分类详情、商品列表）都设置为公开访问，方便前端应用获取商城数据。
+
+## 接口测试
+
+项目提供了完整的接口测试方案，支持多种测试方式。
+
+### 测试工具推荐
+
+根据cool-admin的特性，推荐使用以下API测试工具：
+
+- **[Apifox](https://apifox.com/)** - 集成接口设计、测试、文档、Mock于一体
+- **[ApiPost](https://www.apipost.cn/)** - 专业的API测试工具
+- **[Postman](https://www.postman.com/)** - 经典的API测试工具
+
+### 测试文件
+
+项目在`test/`目录下提供了完整的测试套件：
+
+```
+test/
+├── shop/                           # 商城模块测试
+│   ├── category.test.ts           # Jest单元测试
+│   ├── category-api-test.md       # API测试文档
+│   ├── category-postman-collection.json  # Postman测试集合
+│   └── run-tests.md               # 测试运行指南
+└── README.md                      # 测试说明
+```
+
+### 快速开始测试
+
+1. **导入Postman集合**
+   ```bash
+   # 导入测试集合到Postman
+   test/shop/category-postman-collection.json
+   ```
+
+2. **配置环境变量**
+   ```json
+   {
+     "baseUrl": "http://localhost:7001",
+     "adminToken": "你的管理员token"
+   }
+   ```
+
+3. **运行Jest测试**
+   ```bash
+   # 运行单个测试文件
+   npm test test/shop/category.test.ts
+   
+   # 运行所有测试
+   npm test
+   ```
+
+### 测试覆盖范围
+
+- ✅ 功能测试：接口基本功能验证
+- ✅ 参数验证：必要参数和参数类型验证
+- ✅ 错误处理：异常情况处理验证
+- ✅ 业务逻辑：业务规则正确性验证
+- ✅ 边界测试：边界条件和极值测试
+
+### 测试最佳实践
+
+1. **环境隔离**：使用独立的测试环境
+2. **数据清理**：测试后及时清理测试数据
+3. **自动化运行**：集成到CI/CD流程中
+4. **结果监控**：定期检查测试结果
+
+详细的测试说明请参考：[测试运行指南](test/shop/run-tests.md)

@@ -1,0 +1,524 @@
+{
+  "info": {
+    "name": "商城分类接口测试",
+    "description": "商城分类控制器的接口测试集合，包含分类列表、详情和商品查询等功能",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testCategoryId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "分类列表接口",
+      "item": [
+        {
+          "name": "获取分类列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "list"]
+            },
+            "description": "获取所有商品分类列表"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回成功状态码', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});",
+                  "",
+                  "pm.test('返回数据为数组', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "分类详情接口",
+      "item": [
+        {
+          "name": "创建测试分类",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"测试分类\",\n  \"pic\": \"https://example.com/test.jpg\",\n  \"description\": \"这是一个测试分类\",\n  \"status\": 1,\n  \"orderNum\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop/category/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop", "category", "add"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('创建分类成功', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "    ",
+                  "    // 保存分类ID用于后续测试",
+                  "    if (responseJson.data) {",
+                  "        pm.collectionVariables.set('testCategoryId', responseJson.data);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类详情 - 正常情况",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/info?id={{testCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "info"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testCategoryId}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回成功状态码', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});",
+                  "",
+                  "pm.test('返回分类详情', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('object');",
+                  "    pm.expect(responseJson.data.name).to.eql('测试分类');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类详情 - 不存在的ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/info?id=99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "info"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "99999"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回错误状态码', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.not.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类详情 - 缺少参数",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "info"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回参数错误', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.not.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "分类商品列表接口",
+      "item": [
+        {
+          "name": "创建测试商品1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"测试商品1\",\n  \"pic\": [\"https://example.com/goods1.jpg\"],\n  \"categoryId\": {{testCategoryId}},\n  \"status\": 1,\n  \"description\": \"测试商品描述1\",\n  \"orderNum\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop/goods/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop", "goods", "add"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('创建商品成功', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "创建测试商品2 - 下架状态",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"下架商品\",\n  \"pic\": [\"https://example.com/offline-goods.jpg\"],\n  \"categoryId\": {{testCategoryId}},\n  \"status\": 0,\n  \"description\": \"下架的测试商品\",\n  \"orderNum\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop/goods/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop", "goods", "add"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('创建下架商品成功', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类商品列表 - 正常情况",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/goodsList?categoryId={{testCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "goodsList"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "{{testCategoryId}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回成功状态码', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});",
+                  "",
+                  "pm.test('返回商品列表', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('只返回上架商品', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    responseJson.data.forEach(function(goods) {",
+                  "        pm.expect(goods.status).to.eql(1);",
+                  "        pm.expect(goods.categoryId).to.eql(parseInt(pm.collectionVariables.get('testCategoryId')));",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类商品列表 - 不存在的分类ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/goodsList?categoryId=99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "goodsList"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "99999"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回成功状态码', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});",
+                  "",
+                  "pm.test('返回空数组', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('array');",
+                  "    pm.expect(responseJson.data.length).to.eql(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类商品列表 - 缺少参数",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/goodsList",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "goodsList"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回参数错误', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.not.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取分类商品列表 - 参数类型错误",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/app/shop/category/goodsList?categoryId=abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["app", "shop", "category", "goodsList"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "abc"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('响应状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('返回参数类型错误', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.not.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "数据清理",
+      "item": [
+        {
+          "name": "删除测试分类",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [{{testCategoryId}}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop/category/delete",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop", "category", "delete"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('删除分类成功', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.code).to.eql(1000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 
