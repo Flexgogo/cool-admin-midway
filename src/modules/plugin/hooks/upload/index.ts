@@ -98,13 +98,12 @@ export class CoolPlugin extends BasePluginHook implements BaseUpload {
 
       const file = ctx.files[0];
       const extension = file.filename.split('.').pop();
-      const name =
-        moment().format('YYYYMMDD') + '/' + (key || `${uuid()}.${extension}`);
+      const name = file.filename;
       const target = path.join(basePath, name);
-      const dirPath = path.join(basePath, moment().format('YYYYMMDD'));
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath);
-      }
+      // const dirPath = path.join(basePath, moment().format('YYYYMMDD'));
+      // if (!fs.existsSync(dirPath)) {
+      //   fs.mkdirSync(dirPath);
+      // }
       const data = fs.readFileSync(file.data);
       fs.writeFileSync(target, data);
       return domain + '/upload/' + name;
