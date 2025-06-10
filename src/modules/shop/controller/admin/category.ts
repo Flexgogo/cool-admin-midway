@@ -12,6 +12,8 @@ import { ShopCategoryService } from '../../service/category';
   service: ShopCategoryService,
   pageQueryOp: {
     keyWordLikeFields: ['a.name'],
+    fieldEq: ['a.id', 'a.status', 'a.type'],
+    fieldLike: ['a.name'],
   },
 })
 export class AdminShopCategoryController extends BaseController {

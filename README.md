@@ -181,6 +181,58 @@ export class DemoAppGoodsController extends BaseController {
 - `POST /app/demo/goods/list` 列表信息
 - `POST /app/demo/goods/page` 分页查询(包含模糊查询、字段全匹配等)
 
+## Page接口搜索功能配置
+
+为了让page接口支持数据搜索，需要在Controller中配置`pageQueryOp`参数。以下是配置说明：
+
+### 基本配置
+
+```ts
+@CoolController({
+  api: ['add', 'delete', 'update', 'info', 'list', 'page'],
+  entity: YourEntity,
+  service: YourService,
+  pageQueryOp: {
+    // 支持模糊搜索的字段（用于keyWord参数）
+    keyWordLikeFields: ['a.name', 'a.title'],
+    // 支持精确匹配的字段
+    fieldEq: ['a.id', 'a.status', 'a.type'],
+    // 支持模糊搜索的字段（单独字段模糊搜索）
+    fieldLike: ['a.name', 'a.description'],
+  },
+})
+```
+
+### 配置参数说明
+
+- **keyWordLikeFields**: 支持模糊查询的字段，对应前端传入的`keyWord`参数
+- **fieldEq**: 支持精确匹配的字段，如状态、类型等枚举值
+- **fieldLike**: 支持模糊搜索的字段，可以单独对某个字段进行模糊搜索
+
+### 前端调用示例
+
+```javascript
+// POST请求到 /admin/your-module/page
+{
+  "page": 1,           // 页码
+  "size": 20,          // 每页数量
+  "keyWord": "搜索关键词", // 模糊搜索（对应keyWordLikeFields）
+  "id": "16",          // 精确匹配（对应fieldEq中的id）
+  "name": "teste",     // 模糊搜索（对应fieldLike中的name）
+  "status": 0,         // 精确匹配（对应fieldEq中的status）
+  "type": 0,           // 精确匹配（对应fieldEq中的type）
+  "sort": "desc",      // 排序方向
+  "order": "createTime" // 排序字段
+}
+```
+
+### 注意事项
+
+1. 字段名需要加表别名前缀`a.`，如`a.name`、`a.status`
+2. 确保配置的字段在实体类中存在
+3. 精确匹配用于状态、类型等固定值字段
+4. 模糊搜索用于名称、描述等文本字段
+
 ## 图片日期模块
 
 项目中包含了一个图片日期管理模块，用于管理按日期组织的图片信息。

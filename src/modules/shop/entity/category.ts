@@ -21,4 +21,7 @@ export class ShopCategoryEntity extends BaseEntity {
 
   @Column({ comment: '排序', default: 0 })
   orderNum: number;
+
+  @Column({ comment: '类型', dict: ['category', 'collection'], default: 0 })
+  type: number;
 }
