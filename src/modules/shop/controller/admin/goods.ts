@@ -15,6 +15,15 @@ import { ShopCategoryEntity } from '../../entity/category';
     keyWordLikeFields: ['a.name'],
     fieldEq: ['a.categoryId', 'a.status'],
     fieldLike: ['a.name'],
+    select: ['a.*', 'b.name as categoryName'],
+    join: [
+      {
+        entity: ShopCategoryEntity,
+        alias: 'b',
+        condition: 'a.categoryId = b.id',
+        type: 'leftJoin',
+      },
+    ],
   },
 })
 export class AdminShopGoodsController extends BaseController {
