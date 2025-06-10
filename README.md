@@ -413,6 +413,15 @@ src/modules/shop/
 curl -X GET "http://localhost:9000/dev/app/shop/category/list"
 ```
 
+#### 获取指定类型的分类列表
+```bash
+# 获取分类类型的列表（type=0）
+curl -X GET "http://localhost:9000/dev/app/shop/category/list?type=0"
+
+# 获取合集类型的列表（type=1）
+curl -X GET "http://localhost:9000/dev/app/shop/category/list?type=1"
+```
+
 #### 获取分类详情
 ```bash
 curl -X GET "http://localhost:9000/dev/app/shop/category/categoryInfo?id=1"
@@ -433,8 +442,41 @@ curl -X GET "http://localhost:9000/dev/app/shop/category/goodsList?categoryId=1"
 - `description`: 分类描述
 - `status`: 状态（0-下架，1-上架）
 - `orderNum`: 排序号
+- `type`: 类型（0-category分类，1-collection合集）
 - `createTime`: 创建时间
 - `updateTime`: 更新时间
+
+### API接口详细说明
+
+#### 分类列表接口
+
+**接口地址**: `GET /app/shop/category/list`
+
+**请求参数**:
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| type | number | 否 | 分类类型：0-category(分类)，1-collection(合集)，不传则查询所有 |
+
+**响应示例**:
+```json
+{
+  "code": 1000,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "pic": "https://example.com/pic.jpg",
+      "name": "电子产品",
+      "description": "各类电子产品分类",
+      "status": 1,
+      "orderNum": 1,
+      "type": 0,
+      "createTime": "2024-01-01T00:00:00.000Z",
+      "updateTime": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
 
 ### 权限说明
 

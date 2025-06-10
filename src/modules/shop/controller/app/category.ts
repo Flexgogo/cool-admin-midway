@@ -18,14 +18,23 @@ export class AppShopCategoryController extends BaseController {
 
   /**
    * 分类列表 - 公开接口，无需登录
+   * @param type 分类类型：0-category(分类)，1-collection(合集)，不传则查询所有
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/list', { summary: '商品分类列表' })
-  async list() {
+  async list(@Query('type') type?: number) {
+    // 构建查询条件
+    const whereCondition: any = {
+      status: 1, // 仅查询上架的分类
+    };
+
+    // 如果传入了type参数，则添加类型筛选条件
+    if (type !== undefined && type !== null) {
+      whereCondition.type = type;
+    }
+
     const list = await this.shopCategoryService.shopCategoryEntity.find({
-      where: {
-        status: 1, // 仅查询上架的分类
-      },
+      where: whereCondition,
       order: {
         orderNum: 'ASC', // 按排序字段升序排列
         createTime: 'DESC', // 创建时间降序
