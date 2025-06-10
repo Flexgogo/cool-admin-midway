@@ -14,15 +14,7 @@ import { ShopCategoryEntity } from '../../entity/category';
   pageQueryOp: {
     keyWordLikeFields: ['a.name'],
     fieldEq: ['a.categoryId', 'a.status'],
-    select: ['a.*', 'b.name as categoryName'],
-    join: [
-      {
-        entity: ShopCategoryEntity,
-        alias: 'b',
-        condition: 'a.categoryId = b.id',
-        type: 'leftJoin',
-      },
-    ],
+    fieldLike: ['a.name'],
   },
 })
 export class AdminShopGoodsController extends BaseController {
