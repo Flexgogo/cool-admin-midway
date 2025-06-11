@@ -345,6 +345,133 @@ curl -X GET "http://localhost:8001/app/picture/date/picturesByDateRange?startDat
 - 接口会自动过滤掉状态为禁用的图片
 - 支持日期格式验证和范围验证
 
+## Banner模块
+
+项目中包含了一个Banner管理模块，用于管理应用中的轮播图和广告横幅。
+
+### 功能特性
+
+- **Banner管理**：支持Banner的增删改查操作
+- **类型分类**：支持首页Banner、分类Banner、活动Banner等多种类型
+- **状态控制**：支持启用/禁用状态管理
+- **排序功能**：支持自定义排序，控制Banner显示顺序
+- **图片链接**：支持设置Banner图片和跳转链接
+- **APP端接口**：提供无需登录的公开接口，方便移动端获取Banner数据
+- **日期关联**：支持传入日期参数，同时获取对应日期的图片信息
+
+### 模块结构
+
+```
+src/modules/banner/
+├── controller/
+│   ├── admin/info.ts           # 管理端控制器
+│   └── app/info.ts             # APP端控制器
+├── entity/info.ts              # Banner实体
+├── service/info.ts             # Banner服务
+└── config.ts                   # 模块配置
+```
+
+### API 接口
+
+#### APP端接口（公开访问，无需登录）
+
+- `POST /app/banner/info/list` - 获取Banner列表（支持日期参数）
+- `POST /app/banner/info/page` - 分页查询Banner
+- `GET /app/banner/info/info` - 获取单个Banner信息
+
+#### 管理端接口（需要管理员权限）
+
+- `POST /admin/banner/info/add` - 新增Banner
+- `POST /admin/banner/info/delete` - 删除Banner
+- `POST /admin/banner/info/update` - 更新Banner
+- `GET /admin/banner/info/info` - 获取单个Banner信息
+- `POST /admin/banner/info/list` - 获取Banner列表
+- `POST /admin/banner/info/page` - 分页查询Banner
+
+### 数据结构
+
+```typescript
+{
+  id: number;           // 主键ID
+  name: string;         // Banner名称
+  pic: string;          // Banner图片
+  link: string;         // 跳转链接
+  sort: number;         // 排序号
+  type: number;         // 类型 (0:首页Banner, 1:分类Banner, 2:活动Banner, 3:未知)
+  status: number;       // 状态 (0:禁用, 1:启用)
+  summary: string;      // 简介
+  remark: string;       // 备注
+  createTime: Date;     // 创建时间
+  updateTime: Date;     // 更新时间
+}
+```
+
+### 特殊功能：日期关联查询
+
+Banner列表接口支持传入`date`参数，会同时返回对应日期的图片信息，实现Banner与日期图片的关联展示。
+
+#### 使用示例
+
+**获取Banner列表（不带日期）：**
+```bash
+curl -X POST "http://localhost:8001/app/banner/info/list" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**获取Banner列表（带日期参数）：**
+```bash
+curl -X POST "http://localhost:8001/app/banner/info/list" \
+  -H "Content-Type: application/json" \
+  -d '{"date": "2024-01-15"}'
+```
+
+**返回数据格式（带日期参数）：**
+```json
+{
+  "code": 1000,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "首页轮播图1",
+      "pic": "/uploads/banner/banner1.jpg",
+      "link": "https://example.com",
+      "sort": 1,
+      "type": 0,
+      "status": 1,
+      "summary": "首页主要轮播图",
+      "remark": "重要Banner",
+      "createTime": "2024-01-01T00:00:00.000Z",
+      "updateTime": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pictureInfo": {
+    "id": 5,
+    "date": "2024-01-15",
+    "picture": "/uploads/2024/01/15/daily-pic.jpg",
+    "remark": "每日精选图片",
+    "createTime": "2024-01-15T10:00:00.000Z",
+    "updateTime": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+### 接口特性
+
+1. **自动过滤**：APP端接口自动过滤禁用状态的Banner，只返回启用的Banner
+2. **自动排序**：按sort字段升序排序，确保Banner按指定顺序显示
+3. **容错处理**：日期图片查询失败不会影响Banner列表的正常返回
+4. **状态验证**：只返回启用状态的日期图片信息
+5. **无需登录**：APP端接口使用`@CoolTag(TagTypes.IGNORE_TOKEN)`标签，无需用户登录
+
+### 业务场景
+
+- **移动端首页**：获取首页轮播图Banner
+- **分类页面**：获取分类相关的Banner广告
+- **活动推广**：展示活动Banner和相关图片
+- **日期关联**：在特定日期展示对应的每日图片和Banner组合
+
 ### 部署
 
 [部署教程](https://node.cool-admin.com/src/guide/deploy.html)

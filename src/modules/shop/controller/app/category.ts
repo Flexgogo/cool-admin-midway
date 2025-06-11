@@ -1,4 +1,4 @@
-import { Inject, Get, Query } from '@midwayjs/core';
+import { Inject, Get, Post, Query, Body } from '@midwayjs/core';
 import { CoolController, BaseController, CoolUrlTag, CoolTag, TagTypes } from '@cool-midway/core';
 import { ShopCategoryEntity } from '../../entity/category';
 import { ShopCategoryService } from '../../service/category';
@@ -21,8 +21,8 @@ export class AppShopCategoryController extends BaseController {
    * @param type 分类类型：0-category(分类)，1-collection(合集)，不传则查询所有
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/list', { summary: '商品分类列表' })
-  async list(@Query('type') type?: number) {
+  @Post('/list', { summary: '商品分类列表' })
+  async list(@Body('type') type?: number) {
     // 构建查询条件
     const whereCondition: any = {
       status: 1, // 仅查询上架的分类
@@ -63,8 +63,8 @@ export class AppShopCategoryController extends BaseController {
    * @param categoryId
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/goodsList', { summary: '根据分类ID获取商品列表' })
-  async categoryGoodsList(@Query('categoryId') categoryId: number) {
+  @Post('/goodsList', { summary: '根据分类ID获取商品列表' })
+  async categoryGoodsList(@Body('categoryId') categoryId: number) {
     const list = await this.shopCategoryService.shopGoodsEntity.find({
       where: {
         categoryId,

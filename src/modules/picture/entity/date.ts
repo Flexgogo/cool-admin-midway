@@ -17,4 +17,7 @@ export class PictureDateEntity extends BaseEntity {
 
   @Column({ comment: '备注', nullable: true })
   remark: string;
+
+  @Column({ comment: '名称', nullable: true })
+  name: string;
 }

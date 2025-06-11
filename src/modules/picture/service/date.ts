@@ -42,8 +42,21 @@ export class PictureDateService extends BaseService {
    * @returns 图片日期信息
    */
   async findByDate(date: string | Date): Promise<PictureDateEntity | null> {
-    const queryDate = typeof date === 'string' ? new Date(date) : date;
-    return await this.pictureDateEntity.findOneBy({ date: queryDate });
+    // 将日期转换为YYYY-MM-DD格式的字符串
+    let dateStr: string;
+    if (typeof date === 'string') {
+      // 如果传入的是字符串，确保格式正确
+      dateStr = date.includes('T') ? date.split('T')[0] : date;
+    } else {
+      // 如果传入的是Date对象，转换为YYYY-MM-DD格式
+      dateStr = date.toISOString().split('T')[0];
+    }
+    
+    // 使用QueryBuilder进行日期查询，避免时区和时间部分的影响
+    return await this.pictureDateEntity
+      .createQueryBuilder('pd')
+      .where('DATE(pd.date) = :date', { date: dateStr })
+      .getOne();
   }
 
   /**

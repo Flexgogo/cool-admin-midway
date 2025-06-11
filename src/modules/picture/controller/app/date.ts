@@ -1,4 +1,4 @@
-import { Get, Inject } from '@midwayjs/core';
+import { Get, Inject, Post } from '@midwayjs/core';
 import { CoolController, BaseController, CoolTag, TagTypes } from '@cool-midway/core';
 import { PictureDateService } from '../../service/date';
 
@@ -22,9 +22,9 @@ export class AppPictureDateController extends BaseController {
    * @returns 图片列表
    */
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/picturesByDateRange')
+  @Post('/picturesByDateRange')
   async getPicturesByDateRange() {
-    const { startDate, endDate } = this.ctx.request.query;
+    const { startDate, endDate } = this.ctx.request.body;
     
     // 参数验证
     if (!startDate || !endDate) {
@@ -59,7 +59,8 @@ export class AppPictureDateController extends BaseController {
         picture: item.picture,
         remark: item.remark,
         createTime: item.createTime,
-        updateTime: item.updateTime
+        updateTime: item.updateTime,
+        name: item.name
       }));
       
       return this.ok(result);
